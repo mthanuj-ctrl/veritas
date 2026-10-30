@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: veritas-backend
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: ALLOWED_ORIGINS
+        value: "https://YOUR-SITE.netlify.app,http://localhost:3000,http://127.0.0.1:3000"

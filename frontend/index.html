@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Veritas — Check any claim</title>
+<meta name="description" content="Paste a news claim, social post, or article link. Veritas tells you whether it is likely real or fake, explains why in one sentence, and shows what trustworthy sources say.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<header class="site-header">
+  <div class="header-inner">
+    <h1 class="logo">Veritas</h1>
+    <div class="header-controls">
+      <button id="mode-toggle" class="ctrl-btn" aria-label="Switch to explanation mode">Explanation mode</button>
+      <button id="theme-toggle" class="ctrl-btn" aria-label="Toggle dark mode">Dark</button>
+    </div>
+  </div>
+</header>
+
+<div id="offline-banner" class="offline-banner hidden" role="alert">
+  Live analysis is unavailable right now. Showing your last saved result.
+</div>
+
+<main id="main" class="main-grid">
+
+  <aside id="history-panel" class="history-panel" aria-label="Recent checks">
+    <h2>Recent checks</h2>
+    <ul id="history-list"></ul>
+    <p id="history-empty" class="muted">Nothing yet. Your checks stay in this browser.</p>
+  </aside>
+
+  <section class="content-area">
+
+    <div id="empty-state" class="empty-state">
+      <div class="empty-illustration" aria-hidden="true">
+        <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+          <circle cx="54" cy="54" r="36" stroke="currentColor" stroke-width="3" opacity="0.3"/>
+          <line x1="80" y1="80" x2="104" y2="104" stroke="currentColor" stroke-width="3" stroke-linecap="round" opacity="0.3"/>
+          <path d="M40 54 L50 64 L70 44" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/>
+        </svg>
+      </div>
+      <p class="empty-title">Paste a claim, a post, or a link.</p>
+      <p class="empty-sub">Veritas checks it against live Google News results and tells you what it finds.</p>
+      <div class="examples">
+        <button class="example-btn" data-example="The World Health Organization has declared a new global pandemic emergency.">WHO pandemic claim</button>
+        <button class="example-btn" data-example="Scientists discover a simple kitchen ingredient that cures all types of cancer overnight.">Miracle cure claim</button>
+        <button class="example-btn" data-example="NASA confirms Earth will experience 15 days of total darkness next month.">NASA darkness claim</button>
+      </div>
+    </div>
+
+    <div id="input-area" class="input-area">
+      <label for="claim-input" class="sr-only">Paste a claim or link</label>
+      <textarea id="claim-input" rows="4" placeholder="Paste a news claim, social media post, or article link..." aria-label="Claim input"></textarea>
+      <div class="input-actions">
+        <button id="analyze-btn" class="primary-btn">Analyze</button>
+        <button id="clear-btn" class="ghost-btn" aria-label="Clear input">Clear</button>
+      </div>
+    </div>
+
+    <div id="loading-state" class="loading-state hidden" aria-live="polite">
+      <div class="loading-steps">
+        <p class="step" id="step-1">Reading your claim</p>
+        <p class="step" id="step-2">Building embedding</p>
+        <p class="step" id="step-3">Searching live news and discussions</p>
+        <p class="step" id="step-4">Running spread analysis</p>
+        <p class="step" id="step-5">Forming verdict</p>
+      </div>
+    </div>
+
+    <div id="result-area" class="result-area hidden">
+
+      <div id="verdict-card" class="verdict-card" role="region" aria-label="Verdict">
+        <div class="verdict-top">
+          <span id="verdict-label" class="verdict-label">—</span>
+          <span id="verdict-confidence" class="verdict-confidence">—</span>
+        </div>
+        <p id="verdict-reason" class="verdict-reason"></p>
+      </div>
+
+      <div class="action-row">
+        <button id="share-btn" class="ctrl-btn">Copy link</button>
+        <button id="process-btn" class="ctrl-btn">Show the process</button>
+      </div>
+
+      <div id="process-panel" class="process-panel hidden">
+        <h3>How this result was produced</h3>
+        <div id="process-content"></div>
+      </div>
+
+      <section class="panel" id="timeline-panel">
+        <h2>How it spread over the last 24 hours</h2>
+        <div class="chart-wrap"><canvas id="timeline-chart"></canvas></div>
+        <p id="peak-note" class="peak-note"></p>
+      </section>
+
+      <section class="panel" id="related-panel">
+        <h2>Related news</h2>
+        <div id="related-list" class="card-list"></div>
+      </section>
+
+      <section class="panel" id="reddit-panel">
+        <h2>Reddit discussions</h2>
+        <div id="reddit-list" class="card-list"></div>
+      </section>
+
+      <section class="panel" id="verify-panel">
+        <h2>Verify with trusted sources</h2>
+        <div class="verify-row">
+          <a class="verify-link" target="_blank" rel="noopener" href="https://www.reuters.com/site-search/?query=" id="v-reuters">Reuters</a>
+          <a class="verify-link" target="_blank" rel="noopener" href="https://apnews.com/search?q=" id="v-ap">AP News</a>
+          <a class="verify-link" target="_blank" rel="noopener" href="https://www.bbc.co.uk/search?q=" id="v-bbc">BBC Verify</a>
+          <a class="verify-link" target="_blank" rel="noopener" href="https://www.snopes.com/?s=" id="v-snopes">Snopes</a>
+          <a class="verify-link" target="_blank" rel="noopener" href="https://www.politifact.com/search/?q=" id="v-politifact">PolitiFact</a>
+        </div>
+      </section>
+
+      <section class="panel explanation-only hidden" id="similarity-panel">
+        <h2>Compare with another claim</h2>
+        <textarea id="similarity-input" rows="3" placeholder="Paste a second claim here..." aria-label="Second claim"></textarea>
+        <button id="similarity-btn" class="ctrl-btn">Compare</button>
+        <div id="similarity-result" class="similarity-result hidden">
+          <p id="similarity-pct" class="similarity-pct"></p>
+          <div class="similarity-bar"><div id="similarity-fill" class="similarity-fill"></div></div>
+        </div>
+      </section>
+
+      <section class="panel explanation-only hidden" id="technical-panel">
+        <h2>Technical breakdown</h2>
+        <div id="technical-content"></div>
+      </section>
+
+    </div>
+
+    <section class="panel trending-panel" id="trending-panel">
+      <h2>Trending fact checks</h2>
+      <div id="trending-list" class="card-list"></div>
+    </section>
+
+  </section>
+</main>
+
+<footer class="site-footer">
+  <p>News data from Google News search. Veritas is a screening aid, not a verdict on truth. Always check the sources.</p>
+</footer>
+
+<div id="toast" class="toast hidden" role="status"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
